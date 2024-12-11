@@ -16,7 +16,7 @@ function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
     props.fileUploaderProps;
 
   const [backgroundColor, setBackgroundColor] = useLocalStorage<
-    "black" | "white"
+    "black" | "white" | "match"
   >("squareTool_backgroundColor", "white");
 
   const [squareImageContent, setSquareImageContent] = useState<string | null>(
@@ -37,9 +37,29 @@ function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, size, size);
 
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = 1;
+      tempCanvas.height = 1;
+      const tempCtx = tempCanvas.getContext("2d");
+
       // Load and center the image
       const img = new Image();
       img.onload = () => {
+        // Handle Match background option
+        if (backgroundColor == "match") {
+          if (!tempCtx) return;
+          // Get top-left pixel color
+          tempCtx.drawImage(img, 0, 0, 1, 1, 0, 0, 1, 1);
+          const pixelData = tempCtx.getImageData(0, 0, 1, 1).data;
+          const imageBg = `rgb(${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]})`;
+          console.log(imageBg);
+
+          // Refill background
+          ctx.fillStyle = imageBg;
+          ctx.fillRect(0, 0, size, size);
+        }
+
+        // Draw image
         const x = (size - imageMetadata.width) / 2;
         const y = (size - imageMetadata.height) / 2;
         ctx.drawImage(img, x, y);
@@ -108,7 +128,7 @@ function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
 
       <OptionSelector
         title="Background Color"
-        options={["white", "black"]}
+        options={["white", "black", "match"]}
         selected={backgroundColor}
         onChange={setBackgroundColor}
         formatOption={(option) =>
