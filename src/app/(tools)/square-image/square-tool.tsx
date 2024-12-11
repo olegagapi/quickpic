@@ -52,7 +52,6 @@ function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
           tempCtx.drawImage(img, 0, 0, 1, 1, 0, 0, 1, 1);
           const pixelData = tempCtx.getImageData(0, 0, 1, 1).data;
           const imageBg = `rgb(${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]})`;
-          console.log(imageBg);
 
           // Refill background
           ctx.fillStyle = imageBg;
